@@ -7,6 +7,10 @@ __pycache__/
 *.so
 
 *credentials.json
+*.csv
+*.pem
+*.pkl
+*.ppk
 
 # Distribution / packaging
 .Python
