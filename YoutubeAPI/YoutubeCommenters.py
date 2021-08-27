@@ -74,7 +74,7 @@ daily_quota_exceeded_keys = set()
 
 #Build Youtube API connection
 all_keys = get_all_api_keys()
-print(all_keys)
+logger.info(f"{len(all_keys)} keys in rotation")
 youtube = None
 
 
@@ -90,6 +90,13 @@ def dump_pkl_obj_s3(obj, file_name, bucket):
     pickle_obj = pkl.dumps(obj)
     response = s3.Object(bucket, file_name).put(Body=pickle_obj)
     return response['ResponseMetadata']
+
+def see_all_files_s3(bucket):
+    objects = boto3.client('s3').list_objects_v2(Bucket=bucket)['Contents']
+    files = []
+    for obj in objects:
+        files.append(obj['Key'])
+    return files
 
 #Sleeps until the next calendar day
 def sleep_till_tomorrow():
@@ -113,41 +120,45 @@ def sleep_till_tomorrow():
     return 
 
 def rotate_keys():
-    logger.info("Rotate Keys Called")
     global youtube
     global daily_quota_exceeded_keys
-    
+    logger.info(f"Rotate Keys Called, currently on API Key {all_keys.index(API_KEY)}, length of quota_exceeded keys is {len(daily_quota_exceeded_keys)}")    
     daily_quota_exceeded_keys.add(API_KEY)
     for key in all_keys:
         if key not in daily_quota_exceeded_keys:
             logger.info("Swapping to new key")
             youtube = build_service(key)
+            return
+        else:
+            logger.info(f'API Key {all_keys.index(API_KEY)} is in daily_exceeded keys')
     
     sleep_till_tomorrow()
     rotate_keys() 
     
-#Gets the id of the playlist of uploads for a channel
-def get_uploads_id_for_channel(youtube, channel) -> list:
-    #Ask youtube information about the given channel
+def execute_youtube_list_query(youtube_service, **kwargs):
+    global current_units_used
+    current_units_used += 1
+
     try:
-        response = youtube.channels().list(
-            part="contentDetails",
-            forUsername= channel,
-            
+        response = youtube_service.list(
+            **kwargs
         ).execute()
 
-        #Increment API Quota tracker
-        global current_units_used
-        current_units_used += 1
-
     except HttpError as e:
-        #This likely occurs if there is no uploads or if the quote is exceeded
+        #This likely occurs if there is no uploads or if the quota is exceeded
         logger.info(f"Error encountered, {e.resp.status}: {e.error_details[0]['reason']}")
         if(e.error_details[0]['reason'] == 'quotaExceeded'):
             rotate_keys()
-            return get_uploads_id_for_channel(youtube, channel)
+            return None
         else:
             return None
+    
+    return response
+    
+#Gets the id of the playlist of uploads for a channel
+def get_uploads_id_for_channel(youtube, channel) -> list:
+    
+    response = execute_youtube_list_query(youtube.channels(), part='contentDetails', forUsername=channel)
 
     #If we recieve a valid response with items inside, return the id for the channel's playlist of uploads
     if('items' in response):
@@ -159,23 +170,14 @@ def get_uploads_id_for_channel(youtube, channel) -> list:
 #Gets recent videos, 50 at a time, for a given playlist id and pagination token 
 def get_videos_for_uploads_id(youtube, uploads_id, next_page_token):
     #Ask youtube for recent videos from the playlist with a pagination token
-    try:
-        response = youtube.playlistItems().list(
-            part="contentDetails",
-            playlistId = uploads_id,
-            pageToken = next_page_token,
-            maxResults = 50
-        ).execute() 
+    response = execute_youtube_list_query(youtube.playlistItems(),
+        part="contentDetails",
+        playlistId = uploads_id,
+        pageToken = next_page_token,
+        maxResults = 50
+    )
         
-        #Increment API Quota tracker
-        global current_units_used
-        current_units_used += 1
-
-    except HttpError as e:
-        logger.info(f"Error encountered, {e.resp.status}: {e.error_details[0]['reason']}")
-        if(e.error_details[0]['reason'] == 'quotaExceeded'):
-            rotate_keys()
-            return get_videos_for_uploads_id(youtube, uploads_id, next_page_token)
+    if (response is None):
         return [], None
 
     #Get a list of video ids in that playlist (youtube serves a max of 50 at a time)
@@ -197,31 +199,20 @@ def get_commenters_for_video(youtube, video_id, channel_commenters, max_commente
     #Loop through comment pages until nextPageToken field is blank, then return
     while(True):
         #Query youtube with relevant parameters for commentThreadLists
-        try:
-            response = youtube.commentThreads().list(
-                part="snippet, replies",
-                videoId = video_id,
-                maxResults = 100,
-                pageToken = next_page_token,
-                moderationStatus = "published"   
-            ).execute() 
+        response = execute_youtube_list_query(youtube.commentThreads(),
+            part="snippet, replies",
+            videoId = video_id,
+            maxResults = 100,
+            pageToken = next_page_token,
+            moderationStatus = "published"   
+        )
 
-            #Increment API Quota tracker
-            global current_units_used
-            current_units_used += 1
-
-        except HttpError as e:
-            logger.info(f"Error encountered, {e.resp.status}: {e.error_details[0]['reason']}")
-            if(e.error_details[0]['reason'] == 'quotaExceeded'):
-                rotate_keys()
-                return get_commenters_for_video(youtube, video_id)
-            else:
-                return None
+        if (response is None):
+            return None
 
         #Iterate through commentThreads returned and grab author of topLevelComment and any replies
         for commentThread_obj in response['items']:
             if(len(channel_commenters | commenters) > max_commenters_per_channel):
-                logger.info('Video Commenters + Channel Commenters over max, returning')
                 return(commenters)
 
             top_level_author = commentThread_obj['snippet']['topLevelComment']['snippet']['authorDisplayName']
@@ -303,7 +294,28 @@ def get_commenters_for_uploads_id(uploads_id, max_commenters_per_channel):
             #If this set won't put the total over the max, add them to the master set and go to the next video            
             else:
                 channel_commenters.update(set(video_commenters))
-                logger.info(f'Finished commenters for video: {video_id}, channel_commenters currently at: {len(channel_commenters)}/{max_commenters_per_channel}')
+
+def calculate_overlaps_for_channel(primary_channel, primary_channel_commenter_dict, bucket):
+    utility_files = ['ChannelIdMap.pkl', 'CurrentChannel.pkl', 'YoutubeUsernames.pkl']
+    commenter_files = [file for file in see_all_files_s3(bucket) if file not in utility_files]
+    channel_file_dict = {file_name.split('_')[1]:file_name for file_name in commenter_files}
+    len(channel_file_dict)
+
+    overlap_dict = {}
+    overlap_dict[primary_channel] = {}
+
+    for comparison_channel, comparison_file in channel_file_dict.items():
+        logger.info(f'comparisons for {primary_channel} and {comparison_channel}')
+
+        comparison_channel_commenter_dict = load_pkl_obj_s3(comparison_file, bucket)
+
+        shared_commenters = primary_channel_commenter_dict[primary_channel] & comparison_channel_commenter_dict[comparison_channel]
+        shared_commenter_count = len(shared_commenters)
+        overlap_dict[primary_channel][comparison_channel] = shared_commenter_count
+    
+    target_bucket = 'youtube-overlaps'
+    dump_pkl_obj_s3(overlap_dict, f'June2021_{channel_username}_{len(overlap_dict)}_overlaps', target_bucket)
+    
 
 #Iterates through channel list, resuming from where it left off if necessary, gets commenters, and dumps them into an s3 bucket
 if __name__ == '__main__':
@@ -322,10 +334,6 @@ if __name__ == '__main__':
 
     saved_date = datetime.date.today()
     for i in range(starting_index, len(youtube_channels)): #iterate through list from starting point
-        if(datetime.date.today() != saved_date):
-            current_units_used = 0
-            saved_date = datetime.date.today()
-            logging.info('New Date, reset credits used and updated saved date. This should only occur once every 24 hours')
 
         #Initalize channel values
         channel_username = youtube_channels[i]
@@ -359,4 +367,7 @@ if __name__ == '__main__':
         logger.info(f'Current API Credits Used: {current_units_used}')
         if(current_units_used > 10000):
             logger.info(f'Credits exceeded 10000 current values is {current_units_used}')
+
+        calculate_overlaps_for_channel(channel_username, channel_commenters, 'youtube-commenters')
+
 
