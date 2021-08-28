@@ -156,15 +156,20 @@ def execute_youtube_list_query(youtube_service, **kwargs):
     return response
     
 #Gets the id of the playlist of uploads for a channel
-def get_uploads_id_for_channel(youtube, channel) -> list:
+def get_uploads_id_for_channel(youtube, channel_id) -> list:
     
-    response = execute_youtube_list_query(youtube.channels(), part='contentDetails', forUsername=channel)
+    response = execute_youtube_list_query(youtube.channels(), part='contentDetails, statistics', id=channel_id)
 
     #If we recieve a valid response with items inside, return the id for the channel's playlist of uploads
     if('items' in response):
-        uploads_id = response["items"][0]["contentDetails"]["relatedPlaylists"]["uploads"]
-        return(uploads_id)
+        if(response['items'][0]['statistics']['videoCount'] == '0'):
+            logger.info(f'Channel id {channel_id} has no videos')
+            return None
+        else:
+            uploads_id = response["items"][0]["contentDetails"]["relatedPlaylists"]["uploads"]
+            return(uploads_id)
     else:
+        logger.info(f'Could not find uploads id for channel id: {channel_id}')
         return None
 
 #Gets recent videos, 50 at a time, for a given playlist id and pagination token 
@@ -260,6 +265,10 @@ def get_commenters_for_uploads_id(uploads_id, max_commenters_per_channel):
 
         #Get a list of videos and a pagination token
         video_ids, video_next_page_token = get_videos_for_uploads_id(youtube, uploads_id, video_next_page_token)
+        if(len(video_ids) == 0):
+            logger.info(f'Empty videos list indicates playlistID was invalid, abandoning')
+            return None
+
         logger.info(f'Successfully found videos')
 
 
@@ -272,6 +281,7 @@ def get_commenters_for_uploads_id(uploads_id, max_commenters_per_channel):
             if(video_commenters == None):
                 comment_disabled_video_count += 1
                 if(comment_disabled_video_count > 10):
+                    logger.info(f'Channel exceeded 10 comment disabled videos, abandoning')
                     return None
                 else:
                     continue
@@ -315,7 +325,12 @@ def calculate_overlaps_for_channel(primary_channel, primary_channel_commenter_se
     
     target_bucket = 'youtube-overlaps'
     dump_pkl_obj_s3(overlap_dict, f'June2021_{channel_username}_{len(overlap_dict[primary_channel])}_overlaps', target_bucket)
-    
+
+def find_processed_channels():
+    utility_files = ['ChannelIdMap.pkl', 'CurrentChannel.pkl', 'YoutubeUsernames.pkl']
+    commenter_files = [file for file in see_all_files_s3('youtube-commenters') if file not in utility_files]
+    processed_channels = [file_name.split('_')[1] for file_name in commenter_files]
+    return set(processed_channels)
 
 #Iterates through channel list, resuming from where it left off if necessary, gets commenters, and dumps them into an s3 bucket
 if __name__ == '__main__':
@@ -324,6 +339,8 @@ if __name__ == '__main__':
     youtube_channels = load_pkl_obj_s3('YoutubeUsernames.pkl', 'youtube-commenters') #Load list of 20k youtube channels
     current_channel = load_pkl_obj_s3('CurrentChannel.pkl', 'youtube-commenters') #Get where we left off in case of crash
     channel_id_map = load_pkl_obj_s3('ChannelIdMap.pkl', 'youtube-commenters')
+
+    processed_channels = find_processed_channels()
 
     starting_index = youtube_channels.index(current_channel) #Resume where we were by starting from loaded channel
     logger.info(f'Starting script at {starting_index}/{len(youtube_channels)}, current channel is {current_channel}')
@@ -339,6 +356,11 @@ if __name__ == '__main__':
         channel_username = youtube_channels[i]
         channel_id = channel_id_map[channel_username]
 
+        #Ensures a channel is never proccessed twice, in case channels get skipped this lets me go back and start again without repeating work
+        if(channel_username in processed_channels):
+            logger.info(f'{channel_username} is already processed, moving to next channel')
+            continue
+
         logger.info(f'Currently Using API KEY: {all_keys.index(API_KEY)}')
 
         #Update current channel file in case of crash of halt
@@ -346,18 +368,16 @@ if __name__ == '__main__':
 
         logging.info(f'Started Scrape for {channel_username}')
         
-        uploads_id = get_uploads_id_for_channel(youtube, channel_username) #Each youtube channel has a playlist of uploads with a specific upload_id
+        uploads_id = get_uploads_id_for_channel(youtube, channel_id) #Each youtube channel has a playlist of uploads with a specific upload_id
 
         if(uploads_id is None): #This occurs when a youtube channel has no uploads ie. Youtube Movies
-            logger.info(f'Could not find uploads id for {channel_username}')
             continue
 
         logger.info(f'Successfully found uploads id for {channel_username}')
 
         channel_commenters = get_commenters_for_uploads_id(uploads_id, max_commenters_per_channel) #Gets videos and all commenters until max commenters per channel is hit
 
-        if(channel_commenters is None): #This occurs when a channel has comments turned off ie. CocoMelon
-            logger.info(f'Comments are turned off for {channel_username}, or API quote has been hit see above log')
+        if(channel_commenters is None): #This occurs for a number of reason, logged appropriately
             continue
 
         #Dump channel:commenters to S3 bucket for later analysis
