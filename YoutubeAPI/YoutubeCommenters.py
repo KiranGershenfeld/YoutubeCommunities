@@ -130,7 +130,7 @@ def rotate_keys():
             youtube = build_service(key)
             return
         else:
-            logger.info(f'API Key {all_keys.index(API_KEY)} is in daily_exceeded keys')
+            logger.info(f'API Key {all_keys.index(key)} is in daily_exceeded keys')
     
     sleep_till_tomorrow()
     rotate_keys() 
@@ -295,7 +295,7 @@ def get_commenters_for_uploads_id(uploads_id, max_commenters_per_channel):
             else:
                 channel_commenters.update(set(video_commenters))
 
-def calculate_overlaps_for_channel(primary_channel, primary_channel_commenter_dict, bucket):
+def calculate_overlaps_for_channel(primary_channel, primary_channel_commenter_set, bucket):
     utility_files = ['ChannelIdMap.pkl', 'CurrentChannel.pkl', 'YoutubeUsernames.pkl']
     commenter_files = [file for file in see_all_files_s3(bucket) if file not in utility_files]
     channel_file_dict = {file_name.split('_')[1]:file_name for file_name in commenter_files}
@@ -309,12 +309,12 @@ def calculate_overlaps_for_channel(primary_channel, primary_channel_commenter_di
 
         comparison_channel_commenter_dict = load_pkl_obj_s3(comparison_file, bucket)
 
-        shared_commenters = primary_channel_commenter_dict[primary_channel] & comparison_channel_commenter_dict[comparison_channel]
+        shared_commenters = primary_channel_commenter_set & comparison_channel_commenter_dict[comparison_channel]
         shared_commenter_count = len(shared_commenters)
         overlap_dict[primary_channel][comparison_channel] = shared_commenter_count
     
     target_bucket = 'youtube-overlaps'
-    dump_pkl_obj_s3(overlap_dict, f'June2021_{channel_username}_{len(overlap_dict)}_overlaps', target_bucket)
+    dump_pkl_obj_s3(overlap_dict, f'June2021_{channel_username}_{len(overlap_dict[primary_channel])}_overlaps', target_bucket)
     
 
 #Iterates through channel list, resuming from where it left off if necessary, gets commenters, and dumps them into an s3 bucket

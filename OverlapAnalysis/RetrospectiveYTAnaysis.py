@@ -38,16 +38,24 @@ def see_all_files_s3(bucket):
         files.append(obj['Key'])
     return files
 
+
 utility_files = ['ChannelIdMap.pkl', 'CurrentChannel.pkl', 'YoutubeUsernames.pkl']
 commenter_files = [file for file in see_all_files_s3(bucket) if file not in utility_files]
 channel_file_dict = {file_name.split('_')[1]:file_name for file_name in commenter_files}
 len(channel_file_dict)
 
 
-processed_channels = set()
+processed_files = see_all_files_s3('youtube-overlaps')
+processed_channels = set([file_name.split('_')[1] for file_name in processed_files])
+logger.info(f'starting with {len(processed_channels)} processed channels')
+exit()
+
 count = 0
 
 for primary_channel, _file in channel_file_dict.items():
+    if primary_channel in processed_channels:
+        continue
+
     primary_channel_commenter_dict = load_pkl_obj_s3(_file, bucket)
     
     overlap_dict = {}
