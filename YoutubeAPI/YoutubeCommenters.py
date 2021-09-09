@@ -92,10 +92,11 @@ def dump_pkl_obj_s3(obj, file_name, bucket):
     return response['ResponseMetadata']
 
 def see_all_files_s3(bucket):
-    objects = boto3.client('s3').list_objects_v2(Bucket=bucket)['Contents']
+    s3 = boto3.resource('s3')
+    s3_bucket = s3.Bucket(bucket)
     files = []
-    for obj in objects:
-        files.append(obj['Key'])
+    for obj in s3_bucket.objects.all():
+        files.append(obj.key)
     return files
 
 #Sleeps until the next calendar day
