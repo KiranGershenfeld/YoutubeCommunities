@@ -1,0 +1,54 @@
+{
+  "type": "network",
+  "version": "1.0",
+  "data": "data.json",
+  "logo": {
+    "file": "",
+    "link": "",
+    "text": ""
+  },
+  "text": {
+    "more": "For more information visit: ",
+    "intro": "Generated based on overlap of commenters",
+    "title": "Youtube Atlas"
+  },
+  "legend": {
+    "edgeLabel": "Shared Commenters",
+    "colorLabel": "Detected Community",
+    "nodeLabel": "Channel"
+  },
+  "features": {
+    "search": true,
+    "groupSelectorAttribute": false,
+    "hoverBehavior": "default"
+  },
+  "informationPanel": {
+    "groupByEdgeDirection": false,
+    "imageAttribute": false
+  },
+  "sigma": {
+    "drawingProperties": {
+      "defaultEdgeType": "curve",
+      "defaultHoverLabelBGColor": "#002147",
+      "defaultLabelBGColor": "#ddd",
+      "activeFontStyle": "bold",
+      "defaultLabelColor": "#FFFFFF",
+      "labelAlignemnt": "center",
+      "labelThreshold": 13,
+      "defaultLabelHoverColor": "#fff",
+      "hoverFontStyle": "bold",
+      "labelSize": "proportional",
+      "defaultLabelSize": 10
+    },
+    "graphProperties": {
+      "maxEdgeSize": 2.5,
+      "minEdgeSize": 0.1,
+      "minNodeSize": 0.5,
+      "maxNodeSize": 18
+    },
+    "mouseProperties": {
+      "maxRatio": 20,
+      "minRatio": 0.75
+    }
+  }
+}
