@@ -8,7 +8,7 @@
     "text": ""
   },
   "text": {
-    "more": "For more information visit: ",
+    "more": "<div style='padding-bottom: 10px; font-size: 2em; font-weight: bold; line-height: 1.2em; text-align: center;'>This Is a Map of Youtube</div><p style='line-height: 1.35em; font-size: 17.5px'>Each bubble is a Youtube channel. <br> Over several months I scraped the 20,000 most recent commenters on videos for each of these channels. <br> Each edge represents the overlap of commenters between those two channels. <br> The colors are algorithmically determined by each channels connections. Read more here. <br>The layout of the map was calculated using algorithms built into the software Gephi. <br><br> This is an open source project, find resources <a href='https://www.github.com/KiranGershenfeld/YoutubeCommunities'>here</a></p>",
     "intro": "Generated based on overlap of commenters",
     "title": "Youtube Atlas"
   },
