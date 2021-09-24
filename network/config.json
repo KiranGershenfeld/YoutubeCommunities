@@ -10,11 +10,11 @@
   "text": {
     "more": "",
     "intro": "",
-    "title": "FinalCopy"
+    "title": "Youtube Atlas"
   },
   "legend": {
-    "edgeLabel": "Shared Commenters",
-    "colorLabel": "Detected Community",
+    "edgeLabel": "Overlap",
+    "colorLabel": "Community",
     "nodeLabel": "Channel"
   },
   "features": {

@@ -160,6 +160,9 @@ def execute_youtube_list_query(youtube_service, **kwargs):
 def get_uploads_id_for_channel(youtube, channel_id) -> list:
     
     response = execute_youtube_list_query(youtube.channels(), part='contentDetails, statistics', id=channel_id)
+    if(response is None):
+        logger.info(f'Could not find uploads id for channel id: {channel_id}')
+        return None
 
     #If we recieve a valid response with items inside, return the id for the channel's playlist of uploads
     if('items' in response):

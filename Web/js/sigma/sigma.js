@@ -656,8 +656,10 @@ sigma.classes.EventDispatcher = function () {
         }
         function m(a) {
             if (isNaN(a.x) || isNaN(a.y)) throw Error("A node's coordinate is not a number (id: " + a.id + ")");
-            return !a.hidden && a.displayX + a.displaySize > -n / 3 && a.displayX - a.displaySize < 4 * n / 3 && a.displayY + a.displaySize > -y / 3 && a.displayY - a.displaySize < 4 * y / 3
+            //console.log('n is ' + n + ' and display size is: ' + a.displaySize + ", and evals to: " + (-n)/2);
+            return !a.hidden && a.displayX + a.displaySize > -n/3 && a.displayX - a.displaySize < 4 * n / 3 && a.displayY + a.displaySize > -y/3 && a.displayY - a.displaySize < 4* y / 3
         }
+        
         sigma.classes.Cascade.call(this);
         var j = this;
         this.contexts = {
@@ -712,10 +714,12 @@ sigma.classes.EventDispatcher = function () {
         var n = f,
             y = k;
         this.currentBGIndex = this.currentLabelIndex = this.currentBGIndex = this.currentNodeIndex = this.currentEdgeIndex = 0;
+        
         this.task_drawLabel = function () {
             for (var b = a.nodes.length, c = 0; c++ < j.p.labelsSpeed && j.currentLabelIndex < b;) if (j.isOnScreen(a.nodes[j.currentLabelIndex])) {
                 var d = a.nodes[j.currentLabelIndex++],
                     f = h;
+                
                 if (d.displaySize >= j.p.labelThreshold) {
                     var g = "fixed" == j.p.labelSize ? j.p.defaultLabelSize : j.p.labelSizeRatio * d.displaySize;
                     f.font = (j.p.hoverFontStyle || j.p.fontStyle || "") + " " + g + "px " + (j.p.hoverFont || j.p.font || "");
@@ -732,6 +736,42 @@ sigma.classes.EventDispatcher = function () {
                     f.fillText(d.label, m + 4, l)
                 }
             } else j.currentLabelIndex++;
+
+            console.log('Updating list of 10 largest nodes');
+            
+            var sorted_nodes = [...a.nodes]
+
+            sorted_nodes = sorted_nodes.filter(function(a)
+            {
+                if (isNaN(a.x) || isNaN(a.y)) throw Error("A node's coordinate is not a number (id: " + a.id + ")");
+                return !a.hidden && a.displayX + a.displaySize > n/6 && a.displayX - a.displaySize < 5 * n / 6 && a.displayY + a.displaySize > y/10 && a.displayY - a.displaySize < 9* y / 10
+            })
+    
+            sorted_nodes.sort(function(a,b){
+                return(a.displaySize - b.displaySize)
+            });
+
+            sorted_nodes = sorted_nodes.splice(-10);
+
+            for(var iter = 0; iter < sorted_nodes.length; iter++)
+            {
+                var d = sorted_nodes[iter],
+                    f = h;
+                var g = "fixed" == j.p.labelSize ? j.p.defaultLabelSize : j.p.labelSizeRatio * d.displaySize;
+                f.font = (j.p.hoverFontStyle || j.p.fontStyle || "") + " " + g + "px " + (j.p.hoverFont || j.p.font || "");
+                var i = Math.round,
+                    m = i(d.displayX + 10),
+                    l = i(d.displayY + g / 2 - 2),
+                    k = i(f.measureText(d.label).width + 6),
+                    v = i(g + 4);
+                i(g / 2 + 2);
+                f.font = j.p.fontStyle + g + "px " + j.p.font;
+                f.fillStyle = "#258EA4";
+                f.fillRect(m, l - v + 3, k, v);
+                f.fillStyle = "#fff";
+                f.fillText(d.label, m + 4, l);
+                
+            }
             return j.currentLabelIndex < b
         };
         this.task_drawEdge = function () {
