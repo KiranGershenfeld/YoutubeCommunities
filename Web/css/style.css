@@ -140,14 +140,16 @@ float: left;
 }
 
 #attributepane .name {
-font-size: 14px;
+font-size: 1.5em;
 cursor: default;
-padding-bottom: 10px;
-padding-top: 18px;
+padding-bottom: 15px;
+padding-top: 10px;
 font-weight:bold;
+text-align: center;
 }
 
 #attributepane .data {
+	font-size: 14px;
 
 }
 
@@ -162,7 +164,10 @@ display: block;
 }
 
 #attributepane .link {
-padding: 0 0 0 4px;
+padding: 5px 0 0 4px;
+line-height: 1.4em;
+font-size: 1.1em;
+padding-left: 20px;
 }
 
 #attributepane .link li {
