@@ -15,6 +15,14 @@
     <script src="js/sigma/sigma.parseJson.js" type="text/javascript" language="javascript"></script>
   <script src="js/fancybox/jquery.fancybox.pack.js" type="text/javascript" language="javascript"></script>
   <script src="js/main.js" type="text/javascript" language="javascript"></script>
+  
+  <script type='text/javascript'>
+    $(window).load(function() {
+      // Animate loader off screen
+      console.log("Window loaded");
+      $(".se-pre-con").fadeOut("slow");;
+    })
+  </script>
 
   <link rel="stylesheet" type="text/css" href="js/fancybox/jquery.fancybox.css"/>
   <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" />
@@ -23,6 +31,7 @@
 
 
 <body>
+  <div class="se-pre-con"></div>
   <div class="sigma-parent">
     <div class="sigma-expand" id="sigma-canvas" style="background-color: black"></div>
   </div>
@@ -30,12 +39,6 @@
   <div class="col">
     <div id="title"></div>
     <div id="titletext"></div>
-    <div class="info cf">
-      <dl>
-        <dt class="moreinformation"></dt>
-        <dd class="line"><a href="#information" class="line fb" style="font-size: 1.2em">More Information</a></dd>
-      </dl>
-    </div>
 <div id="legend">
 	<div class="box">
 		<h3>Legend:</h2>
@@ -50,6 +53,12 @@
 	</div>
 </div> 
     <div class="b1">
+      <div class="label_slider_container">
+        <div><span class="line fb" style="font-size: 1.2em">Label Size Cutoff</span></div>
+        <div>
+          <input type="range" min="1" max="10" step="0.1" value="4.5" class="label_slider_class" id="label_slider_id">
+        </div>
+      </div>
     <form>
       <div id="search" class="cf"><h3>Search:</h2>
         <input type="text" name="search" value="Search by name" class="empty"/><div class="state"></div>
@@ -89,8 +98,16 @@
 	</div>
 </div>
 <div id="developercontainer">
-	<a href="http://www.oii.ox.ac.uk" title="Oxford Internet Institute"><div id="oii"><span>OII</span></div></a>
-	<a href="http://jisc.ac.uk" title="JISC"><div id="jisc"><span>JISC</span></div></a>	
+	<div class="info cf">
+    <dl>
+      <dt class="moreinformation"></dt>
+      <dd class="line">
+        <a href="#information" class="line fb" style="font-size: 1.2em">
+          <img src="images/aboutimage.png" height="35vh" width="35vw">
+        </a>
+      </dd>
+    </dl>
+  </div>
 </div>
 <script type="text/javascript">
 

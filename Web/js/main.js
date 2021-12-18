@@ -18,7 +18,6 @@ function GetQueryStringParams(sParam,defaultVal) {
     return defaultVal;
 }
 
-
 jQuery.getJSON(GetQueryStringParams("config","config.json"), function(data, textStatus, jqXHR) {
 	config=data;
 	
@@ -86,7 +85,6 @@ function initSigma(config) {
     a.active = !1;
     a.neighbors = {};
     a.detail = !1;
-
 
     dataReady = function() {//This is called as soon as data is loaded
 		a.clusters = {};
@@ -202,6 +200,13 @@ function setupGUI(config) {
 }
 
 function configSigmaElements(config) {
+    var slider = document.getElementById("label_slider_id");
+    console.log(slider);
+    
+    slider.oninput = function() {
+        sigInst.draw();
+    };
+
 	$GP=config.GP;
     
     // Node hover behaviour
@@ -312,6 +317,7 @@ function configSigmaElements(config) {
     $GP.intro.find("#showGroups").click(function () {
         !0 == $GP.showgroup ? showGroups(!1) : showGroups(!0)
     });
+    $.fancybox.open($("#information"), b);
     a = window.location.hash.substr(1);
     if (0 < a.length) switch (a) {
     case "Groups":
@@ -361,6 +367,7 @@ function Search(a) {
         this.input.val("");
     };
     this.search = function (a) {
+        console.log("Searching");
         var b = !1,
             c = [],
             b = this.exactMatch ? ("^" + a + "$").toLowerCase() : a.toLowerCase(),
@@ -381,6 +388,7 @@ function Search(a) {
             a = ["<b>Search Results: </b>"];
             if (1 < c.length) for (var d = 0, h = c.length; d < h; d++) a.push('<a href="#' + c[d].name + '" onclick="nodeActive(\'' + c[d].id + "')\">" + c[d].name + "</a>");
             0 == c.length && !b && a.push("<i>No results found.</i>");
+
             1 < a.length && this.results.html(a.join(""));
            }
         if(c.length!=1) this.results.show();
@@ -431,17 +439,36 @@ function nodeNormal() {
         a.attr.color = !1;
         a.attr.lineWidth = !1;
         a.attr.size = !1
+        if(a.active == true)
+        {
+            a.active = false;
+            a.forceLabel = false;
+        }
+        
     }), sigInst.draw(2, 2, 2, 2), sigInst.neighbors = {}, sigInst.active = !1, $GP.calculating = !1, window.location.hash = "")
 }
 
 function nodeActive(a) {
-
+    
 	var groupByDirection=false;
 	if (config.informationPanel.groupByEdgeDirection && config.informationPanel.groupByEdgeDirection==true)	groupByDirection=true;
 	
     sigInst.neighbors = {};
     sigInst.detail = !0;
     var b = sigInst._core.graph.nodesIndex[a];
+    
+    selectedIndex = sigInst._core.graph.nodes.indexOf(b);
+    //sigInst._core.graph.nodes[selectedIndex].forceLabel = true;
+ 
+    //failed attempt at zooming in on searched nodes
+    /*
+    console.log(b.label)
+    console.log(b.displayX, b.displayY)
+
+    sigInst.position(0,0,1).draw();
+    sigInst.goTo(b.displayX, b.displayY, 2);
+    */
+
     showGroups(!1);
 	var outgoing={},incoming={},mutual={};//SAH
     sigInst.iterEdges(function (b) {
@@ -460,10 +487,14 @@ function nodeActive(a) {
     });
     var f = [];
     sigInst.iterNodes(function (a) {
+        a.active = false;
         a.hidden = !0;
         a.attr.lineWidth = !1;
         a.attr.color = a.color
+
     });
+    sigInst._core.graph.nodes[selectedIndex].active = true;
+
     
     if (groupByDirection) {
 		//SAH - Compute intersection for mutual and remove these from incoming/outgoing
@@ -508,6 +539,19 @@ function nodeActive(a) {
 				d = c.group;
 				f.push('<li class="cf" rel="' + c.color + '"><div class=""></div><div class="">' + d + "</div></li>");
 			}*/
+            //c has id name group color
+
+            /*
+            sigInst.iterNodes(function (a) {
+                if(a.id == c.id){
+                    console.log('changing node' + a.label)
+                    //console.log(a.attr.label)
+
+                }
+        
+            });*/
+
+            
 			f.push('<li class="membership"><a href="#' + c.name + '" onmouseover="sigInst._core.plotter.drawHoverNode(sigInst._core.graph.nodesIndex[\'' + c.id + '\'])\" onclick=\"nodeActive(\'' + c.id + '\')" onmouseout="sigInst.refresh()">' + c.name + "</a></li>");
 		}
 		return f;
@@ -564,7 +608,7 @@ function nodeActive(a) {
             var d = f.attributes[attr],
                 h = "";
 			if (attr!=image_attribute) {
-                h = '<span><strong>' + attr + ':</strong> ' + d + '</span><br/>'
+                h = '<span><strong>' + attr + ': <br><span class=nodeattr>' + "    " + d.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + '</span></strong> </span><br/>'
 			}
             //temp_array.push(f.attributes[g].attr);
             e.push(h)
@@ -589,6 +633,7 @@ function nodeActive(a) {
 }
 
 function showCluster(a) {
+    console.log("Shpw cluster called ")
     var b = sigInst.clusters[a];
     if (b && 0 < b.length) {
         showGroups(!1);
@@ -598,6 +643,7 @@ function showCluster(a) {
             a.hidden = !1;
             a.attr.lineWidth = !1;
             a.attr.color = !1
+            console.log(a.attr.label)
         });
         sigInst.iterNodes(function (a) {
             a.hidden = !0
@@ -619,5 +665,4 @@ function showCluster(a) {
     }
     return !1
 }
-
 
