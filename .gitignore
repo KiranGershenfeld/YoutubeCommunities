@@ -12,6 +12,14 @@ __pycache__/
 *.pkl
 *.ppk
 
+#VS Code
+.vscode/
+.vscode/**/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
 # Distribution / packaging
 .Python
 build/
