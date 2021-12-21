@@ -35,6 +35,6 @@ I used the SimgaJS library to create a web visualization of the graph exported f
  * SimgaJS
  * Many many Notepad files
  
-This project is in now way affiliated with YouTube and is simply a passion project by a curious student. 
+This project is in no way affiliated with YouTube and is simply a passion project by a curious student. 
 
 Check out my other social media mapping project of [Twitch](https://github.com/KiranGershenfeld/VisualizingTwitchCommunities)!
