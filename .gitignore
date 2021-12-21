@@ -13,12 +13,15 @@ __pycache__/
 *.ppk
 
 #VS Code
-.vscode/
-.vscode/**/*
 !.vscode/settings.json
 !.vscode/tasks.json
-!.vscode/launch.json
+.vscode/launch.json
 !.vscode/extensions.json
+
+#Final edges and labels
+!OverlapAnalysis/YoutubeNodes.csv
+!OverlapAnalysis/YoutubeEdges.csv
+
 
 # Distribution / packaging
 .Python
