@@ -1,16 +1,16 @@
 # YoutubeCommunities
- This project aims to visualize the YouTube creator ecosystem in a way that feels intuitive to users and creators. 
+This project aims to visualize the YouTube creator ecosystem in a way that feels intuitive to users and creators.
  
- The atlas has the top 5600 YouTube channels by subscriber count and links them together by how commenter overlap. 
+The atlas has the top 5600 YouTube channels by subscriber count and links them together by how commenter overlap. All child targeted YouTube channels are not included as the commenters are disabled. 
  
  Results, methodoloy, and tools used in this project are below. 
  
- # Results
+ ## Results
 The atlas is too large to be very useful as an image so I have created an interactive version that is available at https://youtubeatlas.com. I am not a professional web developer so it may have some perfomance issues rendering such a massive graph. If the web version is not working for you here is an image:
 
  ![Atlas](https://imgur.com/4LsCNkj.png)
  
- # Methodology and Process
+ ## Methodology and Process
  I recieved a list of the top YouTube channels by subscriber count courtesy of SocialBlade (Thanks!). 
  
 Each of these channels was scraped for 20,000 commenters from their most recent videos. YouTube has relatively strict API quotas so this took place over the course of several months, about from August-October 2021. 
@@ -19,7 +19,7 @@ When I had enough data I computed the overlaps of commenters between each channe
 
 I used the SimgaJS library to create a web visualization of the graph exported from Gephi. I had to do a ton of tinkering with SigmaJS to get it to work for what I needed to but I think its landed in a usable place. 
  
- # Tools
+ ## Tools
  The following tools were used to complete this project:
  * Python
    - Pandas
