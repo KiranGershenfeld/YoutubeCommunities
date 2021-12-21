@@ -317,7 +317,14 @@ function configSigmaElements(config) {
     $GP.intro.find("#showGroups").click(function () {
         !0 == $GP.showgroup ? showGroups(!1) : showGroups(!0)
     });
+   
+    // Animate loader off screen on data load
+    console.log("Window loaded");
+    $(".se-pre-con").fadeOut("slow");
+    
+    //Open information panel on screen on data load
     $.fancybox.open($("#information"), b);
+
     a = window.location.hash.substr(1);
     if (0 < a.length) switch (a) {
     case "Groups":
