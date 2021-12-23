@@ -475,6 +475,7 @@ function nodeActive(a) {
     sigInst.position(0,0,1).draw();
     sigInst.goTo(b.displayX, b.displayY, 2);
     */
+    //$(".nodeattributes.name").first().html(b.label);
 
     showGroups(!1);
 	var outgoing={},incoming={},mutual={};//SAH
@@ -611,6 +612,7 @@ function nodeActive(a) {
         e = [];
         temp_array = [];
         g = 0;
+        e.push('<span><strong>Name: <br><span class=nodeattr>' + "    " + b.label + '</span></strong> </span><br/>')
         for (var attr in f.attributes) {
             var d = f.attributes[attr],
                 h = "";
@@ -625,7 +627,7 @@ function nodeActive(a) {
         	//image_index = jQuery.inArray(image_attribute, temp_array);
         	$GP.info_name.html("<div><img src=" + f.attributes[image_attribute] + " style=\"vertical-align:middle\" /> <span onmouseover=\"sigInst._core.plotter.drawHoverNode(sigInst._core.graph.nodesIndex['" + b.id + '\'])" onmouseout="sigInst.refresh()">' + b.label + "</span></div>");
         } else {
-        	$GP.info_name.html("<div><span onmouseover=\"sigInst._core.plotter.drawHoverNode(sigInst._core.graph.nodesIndex['" + b.id + '\'])" onmouseout="sigInst.refresh()">' + b.label + "</span></div>");
+        	$GP.info_name.html("<div><span onmouseover=\"sigInst._core.plotter.drawHoverNode(sigInst._core.graph.nodesIndex['" + b.id + '\'])" onmouseout="sigInst.refresh()"> Filtering Atlas to ' + b.label + "'s Connections</span></div>");
         }
         // Image field for attribute pane
         $GP.info_data.html(e.join("<br/>"))

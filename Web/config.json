@@ -8,13 +8,13 @@
     "text": ""
   },
   "text": {
-    "more": "<div style='padding-bottom: 10px; font-size: 2em; font-weight: bold; line-height: 1.2em; text-align: center;'>What is this?</div><p style='line-height: 1.35em; font-size: 17.5px'><b>This is an algorithmically generated map of Youtube</b><ul style='font-size: 1.25em;margin-left: 15px; padding-bottom: 5px; line-height: 1.5em; font-size: 1.4em; list-style-type: circle;'><li>Each bubble is a Youtube channel.</li> <li>Each edge represents the overlap of commenters between those two channels. All edges on this map represent an overlap of at least 350 commenters.</li> <li>The colors are algorithmically assigned by detecting communities of densly connected channels.</li> <li>The layout of the map was constructed using force directed layout algorithms.</li></ul><br><br><p style='line-height: 1.35em; font-size: 17.5px'><b>Website Controls</b><ul style='font-size: 1.25em;margin-left: 15px; padding-bottom: 5px; line-height: 1.5em; font-size: 1.4em; list-style-type: circle;'><li>Left click and drag to pan.</li> <li>Scroll to zoom. Trackpad zoom might not work very well but the zoom in, out, and center buttons at the bottom should help out in that case.</li> <li>Click on a channel to see channel info and filter the map to only that channel's connections.</li><li>The number of labels shown on screen can be adjusted using the slider available on the info panel.</li><li>Mobile viewing is currently not supported.</li><li>Click the info icon in the bottom left to bring up this help panel.</li></ul> <p style='font-size: 17.5px; line-height: 1.35em;'><br>I have not done much web development like this so please be patient as I learn what works and what doesn't.<br><br>This project was made with <a href='http://sigmajs.org/'>SigmaJS</a> and <a href='https://gephi.org/'>Gephi</a>. My code is available <a href='https://github.com/KiranGershenfeld/YoutubeCommunities'>here</a>.</p>",    
+    "more": "<div style='padding-bottom: 10px; font-size: 2em; font-weight: bold; line-height: 1.2em; text-align: center;'>What is this?</div><p style='line-height: 1.35em; font-size: 17.5px'><b>This is an algorithmically generated map of Youtube</b><ul style='font-size: 1.25em;margin-left: 15px; padding-bottom: 5px; line-height: 1.5em; font-size: 1.4em; list-style-type: circle;'><li>Each circle is a Youtube channel.</li> <li>Each line represents the overlap of commenters between two channels. All lines on this atlas indicate an overlap of at least 350 commenters.</li> <li>The colors are algorithmically assigned to indicate densly connected communities.</li> <li>The layout of the map was constructed using force directed layout algorithms.</li></ul><br><br><p style='line-height: 1.35em; font-size: 17.5px'><b>Website Controls</b><ul style='font-size: 1.25em;margin-left: 15px; padding-bottom: 5px; line-height: 1.5em; font-size: 1.4em; list-style-type: circle;'><li>Left click and drag to pan.</li> <li>Scroll to zoom or use the zoom in, out, and center buttons at the bottom of the screen. Trackpad zoom may not work well.</li> <li>Click on a channel to see channel info and filter the map to only that channel's connections.</li><li>The number of channel names shown on screen can be adjusted using the slider available on the main panel.</li><li>Mobile viewing is currently not supported.</li><li>Click the info icon in the bottom left to bring up this help panel.</li></ul> <p style='font-size: 17.5px; line-height: 1.35em;'><br>I have not done much web development like this so please be patient as I learn what works and what doesn't.<br><br>This project was made with <a href='http://sigmajs.org/'>SigmaJS</a> and <a href='https://gephi.org/'>Gephi</a>. My code is available <a href='https://github.com/KiranGershenfeld/YoutubeCommunities'>here</a>.</p>",    
     "intro": "Generated based on overlap of commenters",
     "title": "Youtube Atlas"
   },
   "legend": {
     "edgeLabel": "Shared Commenters",
-    "colorLabel": "Detected Community",
+    "colorLabel": "Community of Creators",
     "nodeLabel": "Channel"
   },
   "features": {
@@ -42,7 +42,7 @@
     },
     "graphProperties": {
       "maxEdgeSize": 1,
-      "minEdgeSize": 0.1,
+      "minEdgeSize": 0.16,
       "minNodeSize": 1,
       "maxNodeSize": 15
     },

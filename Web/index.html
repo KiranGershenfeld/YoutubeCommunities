@@ -22,10 +22,6 @@
     <script src="js/sigma/sigma.parseJson.js" type="text/javascript" language="javascript"></script>
   <script src="js/fancybox/jquery.fancybox.pack.js" type="text/javascript" language="javascript"></script>
   <script src="js/main.js" type="text/javascript" language="javascript"></script>
-  
-  <script type='text/javascript'>
-    
-  </script>
 
   <link rel="stylesheet" type="text/css" href="js/fancybox/jquery.fancybox.css"/>
   <link rel="stylesheet" href="css/style.css" type="text/css" media="screen" />
@@ -57,9 +53,17 @@
 </div> 
     <div class="b1">
       <div class="label_slider_container">
-        <div><span class="line fb" style="font-size: 1.2em">Label Size Cutoff</span></div>
+        <div><span class="line fb" style="font-size: 1.2em">Visible Channel Names</span></div>
         <div>
+          <div style="
+            float: left;
+            margin-right: 8px;
+            font-size: 1.2em;">Less</div>
           <input type="range" min="1" max="10" step="0.1" value="4.5" class="label_slider_class" id="label_slider_id">
+          <div style="
+            float: right;
+            margin-right: 35px;
+            font-size: 1.2em;">More</div>
         </div>
       </div>
     <form>
@@ -85,12 +89,11 @@
 	</div>
 <div id="attributepane">
 <div class="text">
-	<div title="Close" class="left-close returntext"><div class="c cf"><span>Return to the full network</span></div></div>	
-<div class="headertext">
-	<span>Channel Information</span>
-</div>	
+	<div title="Close" class="left-close returntext"><div class="c cf"><span>Return to the full network</span></div></div>		
   <div class="nodeattributes">
     <div class="name"></div>
+    <div class="headertext">
+    </div>
 	<div class="data"></div>
     <div class="p">Connections:</div>
     <div class="link">
