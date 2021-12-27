@@ -72,11 +72,9 @@ logger.addHandler(watchtower.CloudWatchLogHandler())
 current_units_used = 0
 daily_quota_exceeded_keys = set()
 
-#Build Youtube API connection
+#Declare Youtube API connection
 all_keys = get_all_api_keys()
-logger.info(f"{len(all_keys)} keys in rotation")
 youtube = None
-
 
 
 #S3 Helper Functions
@@ -119,22 +117,6 @@ def sleep_till_tomorrow():
     current_units_used = 0
     daily_quota_exceeded_keys = set()
     return 
-
-def rotate_keys():
-    global youtube
-    global daily_quota_exceeded_keys
-    logger.info(f"Rotate Keys Called, currently on API Key {all_keys.index(API_KEY)}, length of quota_exceeded keys is {len(daily_quota_exceeded_keys)}")    
-    daily_quota_exceeded_keys.add(API_KEY)
-    for key in all_keys:
-        if key not in daily_quota_exceeded_keys:
-            logger.info("Swapping to new key")
-            youtube = build_service(key)
-            return
-        else:
-            logger.info(f'API Key {all_keys.index(key)} is in daily_exceeded keys')
-    
-    sleep_till_tomorrow()
-    rotate_keys() 
     
 def execute_youtube_list_query(youtube_service, **kwargs):
     global current_units_used
@@ -149,7 +131,7 @@ def execute_youtube_list_query(youtube_service, **kwargs):
         #This likely occurs if there is no uploads or if the quota is exceeded
         logger.info(f"Error encountered, {e.resp.status}: {e.error_details[0]['reason']}")
         if(e.error_details[0]['reason'] == 'quotaExceeded'):
-            rotate_keys()
+            sleep_till_tomorrow()
             return None
         else:
             return None
