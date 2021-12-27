@@ -1,3 +1,5 @@
+#This script calculates a single channels overlaps. Used for ad hoc analysis. 
+
 import boto3
 import pickle as pkl
 import json
@@ -48,7 +50,7 @@ len(channel_file_dict)
 processed_files = see_all_files_s3('youtube-overlaps')
 processed_channels = set([file_name.split('_')[1] for file_name in processed_files])
 logger.info(f'starting with {len(processed_channels)} processed channels')
-exit()
+
 
 count = 0
 
