@@ -1,9 +1,11 @@
 # YouTube Communities
 This project aims to visualize the YouTube creator ecosystem in a way that feels intuitive to users and creators.
  
-The atlas has the top 5600 YouTube channels by subscriber count and links them together by how commenter overlap. All child targeted YouTube channels are not included as the commenters are disabled. 
+The atlas has the top 5700 YouTube channels by subscriber count and links them together by how commenter overlap. The list of YouTube channels was provided by SocialBlade - Thanks!. 
+
+All child targeted YouTube channels are not included as the commenters are disabled. 
  
- Results, methodoloy, and tools used in this project are below. 
+Results, methodoloy, and tools used in this project are below. 
  
  ## Results
 The atlas is too large to be very useful as an image so I have created an interactive version that is available at https://youtubeatlas.com. I am not a professional web developer so it may have some perfomance issues rendering such a massive graph. If the web version is not working for you here is an image:
